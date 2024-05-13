@@ -29,7 +29,7 @@ int main(void) {
     char buffer[100]; /* Buffer for reading lines */
 
     /* Loop until there is no more input */
-    while (fgets(buffer, MAX_LINE_LENGTH, stdin)) {
+    while (fgets(buffer, MAX_LINE_LENGTH, stdin) != NULL) {
         /* Dynamically allocate memory for a record */
         struct Record* new_record = malloc(sizeof(struct Record));
 
