@@ -29,7 +29,7 @@ int main(void) {
     char buffer[100]; /* Buffer for reading lines */
 
     /* Loop until there is no more input */
-    while (fgets(buffer, MAX_LINE_LENGTH, stdin) != NULL) {
+    while (fgets(buffer, MAX_LINE_LENGTH, stdin) != NULL && num_records < MAX_RECORDS) {
         /* Dynamically allocate memory for a record */
         struct Record* new_record = malloc(sizeof(struct Record));
 
@@ -39,12 +39,23 @@ int main(void) {
             return -1;
         }
 
-        new_record->name = read_line(buffer, MAX_NAME_LENGTH);
-        new_record->street = read_line(buffer, MAX_ADDRESS_LENGTH);
+        /* Name is already stored in buffer */
+        new_record->name = buffer;
+
+        /* Address */
+        fgets(buffer, MAX_LINE_LENGTH, stdin);
+        new_record->street = buffer;
+
+        /* City and State */
         new_record->city_and_state = read_line(buffer, MAX_ADDRESS_LENGTH);
+        fgets(buffer, MAX_LINE_LENGTH, stdin);
+
+        /* Zipcode */
         new_record->zipcode = read_line(buffer, MAX_ADDRESS_LENGTH);
 
+        /* Store newly created record object pointer */
         records[num_records] = new_record;
+        num_records++;
     }
 
     // Display records
