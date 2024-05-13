@@ -5,7 +5,7 @@
 #define MAX_ADDRESS_LENGTH 50
 #define MAX_NAME_LENGTH 30
 #define MAX_RECORDS 50
-#define LINE_SIZE 100
+#define MAX_LINE_LENGTH 100
 
 /* Record information */
 struct Record {
@@ -15,47 +15,45 @@ struct Record {
     char* zipcode;
 };
 
-/* Helper function to read a single line of input and return a char pointer */
-char* readLine() {
-    char* line = malloc(LINE_SIZE + 1);
-
-    if (!fgets(line, LINE_SIZE, stdin)) {
-        free(line);
-        return NULL;
+char* read_line(char* buffer, int max_len) {
+    if (fgets(buffer, max_len, stdin)) {
+        buffer[strcspn(buffer, "\n")] = '\0'; /* Remove newline character */
+        return strdup(buffer); /* Duplicate and return the string */
     }
-
-    /* Remove newline character */
-    line[strcspn(line, "\n")] = '\0';
-    return line;
+    return NULL;
 }
 
 int main(void) {
-    /* Initialize an array of Record objects using pointer notation */
     struct Record* records[MAX_RECORDS];
     int num_records = 0;
-    char current = '\0';
+    char buffer[100]; /* Buffer for reading lines */
 
-    while (num_records < MAX_RECORDS) {
+    /* Loop until there is no more input */
+    while (fgets(buffer, MAX_LINE_LENGTH, stdin)) {
+        /* Dynamically allocate memory for a record */
         struct Record* new_record = malloc(sizeof(struct Record));
 
-        new_record->name = readLine();
-        new_record->street = readLine();
-        new_record->city_and_state = readLine();
-        new_record->zipcode = readLine();
+        /* Print error message upon failure to dynamically allocate memory */
+        if (!new_record) {
+            fprintf(stderr, "Memory allocation failed.\n");
+            return -1;
+        }
+
+        new_record->name = read_line(buffer, MAX_NAME_LENGTH);
+        new_record->street = read_line(buffer, MAX_ADDRESS_LENGTH);
+        new_record->city_and_state = read_line(buffer, MAX_ADDRESS_LENGTH);
+        new_record->zipcode = read_line(buffer, MAX_ADDRESS_LENGTH);
 
         records[num_records] = new_record;
-
-        /* Consume newline */
-        getchar();
     }
 
-    /* Display records */
+    // Display records
     for (int i = 0; i < num_records; i++) {
         struct Record* rec = records[i];
         printf("Record %d: %s, %s, %s, %s\n", i + 1, rec->name, rec->street, rec->city_and_state, rec->zipcode);
     }
 
-    /* Cleanup */
+    // Cleanup
     for (int i = 0; i < num_records; i++) {
         free(records[i]->name);
         free(records[i]->street);
