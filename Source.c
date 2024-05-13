@@ -1,6 +1,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define MAX_ADDRESS_LENGTH 50
 #define MAX_NAME_LENGTH 30
@@ -15,12 +16,11 @@ struct Record {
     char* zipcode;
 };
 
-char* read_line(char* buffer, int max_len) {
-    if (fgets(buffer, max_len, stdin)) {
-        buffer[strcspn(buffer, "\n")] = '\0'; /* Remove newline character */
-        return strdup(buffer); /* Duplicate and return the string */
+void removeNewline(char* str) {
+    int len = strlen(str);
+    if (len > 0 && str[len - 1] == '\n') {
+        str[len - 1] = '\0';
     }
-    return NULL;
 }
 
 int main(void) {
@@ -36,22 +36,71 @@ int main(void) {
         /* Print error message upon failure to dynamically allocate memory */
         if (!new_record) {
             fprintf(stderr, "Memory allocation failed.\n");
-            return -1;
+            break;
         }
 
-        /* Name is already stored in buffer */
-        new_record->name = buffer;
+        // Name
+        removeNewline(buffer);
+        new_record->name = _strdup(buffer);
+        if (!new_record->name) {
+            fprintf(stderr, "Memory allocation for name failed.\n");
+            free(new_record);
+            break;
+        }
 
-        /* Address */
-        fgets(buffer, MAX_LINE_LENGTH, stdin);
-        new_record->street = buffer;
+        // Address
+        if (fgets(buffer, MAX_LINE_LENGTH, stdin) == NULL) {
+            free(new_record->name);
+            free(new_record);
+            break;
+        }
 
-        /* City and State */
-        new_record->city_and_state = read_line(buffer, MAX_ADDRESS_LENGTH);
-        fgets(buffer, MAX_LINE_LENGTH, stdin);
+        removeNewline(buffer);
+        new_record->street = _strdup(buffer);
+        if (!new_record->street) {
+            fprintf(stderr, "Memory allocation for street failed.\n");
+            free(new_record->name);
+            free(new_record);
+            break;
+        }
 
-        /* Zipcode */
-        new_record->zipcode = read_line(buffer, MAX_ADDRESS_LENGTH);
+        // City and State
+        if (fgets(buffer, MAX_LINE_LENGTH, stdin) == NULL) {
+            free(new_record->name);
+            free(new_record->street);
+            free(new_record);
+            break;
+        }
+
+        removeNewline(buffer);
+        new_record->city_and_state = _strdup(buffer);
+        if (!new_record->city_and_state) {
+            fprintf(stderr, "Memory allocation for city and state failed.\n");
+            free(new_record->name);
+            free(new_record->street);
+            free(new_record);
+            break;
+        }
+
+        // Zipcode
+        if (fgets(buffer, MAX_LINE_LENGTH, stdin) == NULL) {
+            free(new_record->name);
+            free(new_record->street);
+            free(new_record->city_and_state);
+            free(new_record);
+            break;
+        }
+
+        removeNewline(buffer);
+        new_record->zipcode = _strdup(buffer);
+        if (!new_record->zipcode) {
+            fprintf(stderr, "Memory allocation for zipcode failed.\n");
+            free(new_record->name);
+            free(new_record->street);
+            free(new_record->city_and_state);
+            free(new_record);
+            break;
+        }
 
         /* Store newly created record object pointer */
         records[num_records] = new_record;
@@ -61,7 +110,11 @@ int main(void) {
     // Display records
     for (int i = 0; i < num_records; i++) {
         struct Record* rec = records[i];
-        printf("Record %d: %s, %s, %s, %s\n", i + 1, rec->name, rec->street, rec->city_and_state, rec->zipcode);
+        printf("Record #%d\n", i + 1);
+        printf("Name: %s\n", rec->name);
+        printf("Street: %s\n", rec->street);
+        printf("City and State: %s\n", rec->city_and_state);
+        printf("Zipcode: %s\n", rec->zipcode);
     }
 
     // Cleanup
