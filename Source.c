@@ -16,10 +16,88 @@ struct Record {
     char* zipcode;
 };
 
+/* Helper function to remove newline character from the end of a string */
 void removeNewline(char* str) {
     int len = strlen(str);
     if (len > 0 && str[len - 1] == '\n') {
         str[len - 1] = '\0';
+    }
+}
+
+void sortByZipcode(struct Record** records, int num_records) {
+    for (int i = 0; i < num_records - 1; ++i) {
+        /* Convert the current zipcode to an integer */
+        int current = records[i]->zipcode;
+        int next = records[i + 1]->zipcode;
+
+        if (current > next) {
+            struct Record* temp = records[i];
+
+            records[i] = records[i + 1];
+            records[i + 1] = temp;
+        }
+    }
+}
+
+void merge(struct Record** records, int left, int mid, int right) {
+    int i, j, k;
+    int n1 = mid - left + 1;
+    int n2 = right - mid;
+
+    // Create temp arrays
+    struct Record** L = malloc(n1 * sizeof(struct Record*));
+    struct Record** R = malloc(n2 * sizeof(struct Record*));
+
+    // Copy data to temp arrays L[] and R[]
+    for (i = 0; i < n1; i++)
+        L[i] = records[left + i];
+    for (j = 0; j < n2; j++)
+        R[j] = records[mid + 1 + j];
+
+    // Merge the temp arrays back into records[left..right]
+    i = 0; // Initial index of first subarray
+    j = 0; // Initial index of second subarray
+    k = left; // Initial index of merged subarray
+    while (i < n1 && j < n2) {
+        if (strcmp(L[i]->zipcode, R[j]->zipcode) <= 0) {
+            records[k] = L[i];
+            i++;
+        }
+        else {
+            records[k] = R[j];
+            j++;
+        }
+        k++;
+    }
+
+    // Copy the remaining elements of L[], if there are any
+    while (i < n1) {
+        records[k] = L[i];
+        i++;
+        k++;
+    }
+
+    // Copy the remaining elements of R[], if there are any
+    while (j < n2) {
+        records[k] = R[j];
+        j++;
+        k++;
+    }
+
+    free(L);
+    free(R);
+}
+
+void mergeSort(struct Record** records, int left, int right) {
+    if (left < right) {
+        // Same as (l+r)/2, but avoids overflow for large l and h
+        int mid = left + (right - left) / 2;
+
+        // Sort first and second halves
+        mergeSort(records, left, mid);
+        mergeSort(records, mid + 1, right);
+
+        merge(records, left, mid, right);
     }
 }
 
@@ -28,7 +106,7 @@ int main(void) {
     int num_records = 0;
     char buffer[100]; /* Buffer for reading lines */
 
-    /* Loop until there is no more input */
+    /* Convert input to Record objects and store them in the records array */
     while (fgets(buffer, MAX_LINE_LENGTH, stdin) != NULL && num_records < MAX_RECORDS) {
         /* Dynamically allocate memory for a record */
         struct Record* new_record = malloc(sizeof(struct Record));
@@ -39,7 +117,7 @@ int main(void) {
             break;
         }
 
-        // Name
+        /* Name */
         removeNewline(buffer);
         new_record->name = _strdup(buffer);
         if (!new_record->name) {
@@ -48,7 +126,7 @@ int main(void) {
             break;
         }
 
-        // Address
+        /* Address */
         if (fgets(buffer, MAX_LINE_LENGTH, stdin) == NULL) {
             free(new_record->name);
             free(new_record);
@@ -64,7 +142,7 @@ int main(void) {
             break;
         }
 
-        // City and State
+        /* City and State */
         if (fgets(buffer, MAX_LINE_LENGTH, stdin) == NULL) {
             free(new_record->name);
             free(new_record->street);
@@ -82,7 +160,7 @@ int main(void) {
             break;
         }
 
-        // Zipcode
+        /* Zipcode */
         if (fgets(buffer, MAX_LINE_LENGTH, stdin) == NULL) {
             free(new_record->name);
             free(new_record->street);
@@ -107,7 +185,10 @@ int main(void) {
         num_records++;
     }
 
-    // Display records
+    /* Sort the records by zipcode */
+    mergeSort(records, 0, num_records - 1);
+
+    /* Display sorted records */
     for (int i = 0; i < num_records; i++) {
         struct Record* rec = records[i];
         printf("Record #%d\n", i + 1);
