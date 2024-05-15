@@ -4,11 +4,6 @@
 #include <string.h>
 #include "Record.h"
 
-#define MAX_ADDRESS_LENGTH 50
-#define MAX_NAME_LENGTH 30
-#define MAX_RECORDS 50
-#define MAX_LINE_LENGTH 100
-
 void removeNewline(char* str); /* Helper function to remove newline character from the end of a string */
 void merge(struct Record** records, int left, int mid, int right);
 void mergeSort(struct Record** records, int left, int right);
