@@ -12,14 +12,14 @@ int main(int argc, char* argv[]) {
     /* Attempt to open input file*/
     FILE* inputFile = fopen(argv[1], "r");
     if (!inputFile) {
-        perror("Error: Unable to open file. Terminating Program...\n");
+        perror("Error: Unable to open input file. Terminating Program...\n");
         return -1;
     }
 
     /* Open output file */
     FILE* outputFile = fopen(argv[2], "w");
     if (!outputFile) {
-        perror("Error opening output file");
+        perror("Error opening output file. Terminating Program...\n");
         fclose(inputFile);
         return 1;
     }
