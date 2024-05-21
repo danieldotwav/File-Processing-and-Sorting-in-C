@@ -9,6 +9,12 @@ void merge(struct Record** records, int left, int mid, int right);
 void mergeSort(struct Record** records, int left, int right);
 
 int main(int argc, char* argv[]) {
+    /* Check for correct number of command line arguments*/
+    if (argc != 3) {
+        fprintf(stderr, "Usage: %s <input_file> <output_file>\n", argv[0]);
+        return 1;
+    }
+
     /* Attempt to open input file*/
     FILE* inputFile = fopen(argv[1], "r");
     if (!inputFile) {
