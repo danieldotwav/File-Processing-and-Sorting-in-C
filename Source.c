@@ -18,10 +18,10 @@ int main(int argc, char* argv[]) {
 
     struct Record* records[MAX_RECORDS];
     int num_records = 0;
-    char buffer[100]; /* Buffer for reading lines */
+    char buffer[MAX_LINE_LENGTH]; /* Buffer for reading lines */
 
     /* Convert input to Record objects and store them in the records array */
-    while (fgets(buffer, MAX_LINE_LENGTH, stdin) != NULL && num_records < MAX_RECORDS) {
+    while (fgets(buffer, MAX_LINE_LENGTH, file) != NULL && num_records < MAX_RECORDS) {
         /* Dynamically allocate memory for a record */
         struct Record* new_record = malloc(sizeof(struct Record));
 
@@ -33,71 +33,38 @@ int main(int argc, char* argv[]) {
 
         /* Name */
         removeNewline(buffer);
-        new_record->name = _strdup(buffer);
-        if (!new_record->name) {
-            fprintf(stderr, "Memory allocation for name failed.\n");
-            free(new_record);
-            break;
-        }
+        strncpy(new_record->name, buffer, MAX_NAME_LENGTH);
 
         /* Address */
-        if (fgets(buffer, MAX_LINE_LENGTH, stdin) == NULL) {
-            free(new_record->name);
+        if (fgets(buffer, MAX_LINE_LENGTH, file) == NULL) {
             free(new_record);
             break;
         }
-
         removeNewline(buffer);
-        new_record->street = _strdup(buffer);
-        if (!new_record->street) {
-            fprintf(stderr, "Memory allocation for street failed.\n");
-            free(new_record->name);
-            free(new_record);
-            break;
-        }
+        strncpy(new_record->street, buffer, MAX_ADDRESS_LENGTH);
 
         /* City and State */
-        if (fgets(buffer, MAX_LINE_LENGTH, stdin) == NULL) {
-            free(new_record->name);
-            free(new_record->street);
+        if (fgets(buffer, MAX_LINE_LENGTH, file) == NULL) {
             free(new_record);
             break;
         }
-
         removeNewline(buffer);
-        new_record->city_and_state = _strdup(buffer);
-        if (!new_record->city_and_state) {
-            fprintf(stderr, "Memory allocation for city and state failed.\n");
-            free(new_record->name);
-            free(new_record->street);
-            free(new_record);
-            break;
-        }
+        strncpy(new_record->city_and_state, buffer, MAX_ADDRESS_LENGTH);
 
         /* Zipcode */
-        if (fgets(buffer, MAX_LINE_LENGTH, stdin) == NULL) {
-            free(new_record->name);
-            free(new_record->street);
-            free(new_record->city_and_state);
+        if (fgets(buffer, MAX_LINE_LENGTH, file) == NULL) {
             free(new_record);
             break;
         }
-
         removeNewline(buffer);
-        new_record->zipcode = _strdup(buffer);
-        if (!new_record->zipcode) {
-            fprintf(stderr, "Memory allocation for zipcode failed.\n");
-            free(new_record->name);
-            free(new_record->street);
-            free(new_record->city_and_state);
-            free(new_record);
-            break;
-        }
+        strncpy(new_record->zipcode, buffer, MAX_ADDRESS_LENGTH);
 
         /* Store newly created record object pointer */
         records[num_records] = new_record;
         num_records++;
     }
+
+    fclose(file);
 
     /* Sort the records by zipcode */
     mergeSort(records, 0, num_records - 1);
@@ -113,10 +80,6 @@ int main(int argc, char* argv[]) {
 
     /* Deallocate dynamically allocated memory */
     for (int i = 0; i < num_records; i++) {
-        free(records[i]->name);
-        free(records[i]->street);
-        free(records[i]->city_and_state);
-        free(records[i]->zipcode);
         free(records[i]);
     }
 
