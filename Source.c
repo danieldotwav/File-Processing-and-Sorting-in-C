@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
     if (!outputFile) {
         perror("Error opening output file. Terminating Program...\n");
         fclose(inputFile);
-        return 1;
+        return -3;
     }
 
     struct Record* records[MAX_RECORDS];
@@ -36,7 +36,7 @@ int main(int argc, char* argv[]) {
         /* Print error message upon failure to dynamically allocate memory */
         if (!new_record) {
             fprintf(stderr, "Memory allocation failed.\n");
-            break;
+            return -2;
         }
 
         /* Name */
@@ -46,7 +46,7 @@ int main(int argc, char* argv[]) {
         /* Address */
         if (fgets(buffer, MAX_LINE_LENGTH, inputFile) == NULL) {
             free(new_record);
-            break;
+            return -2;
         }
         removeNewline(buffer);
         strncpy(new_record->street, buffer, MAX_ADDRESS_LENGTH);
@@ -54,7 +54,7 @@ int main(int argc, char* argv[]) {
         /* City and State */
         if (fgets(buffer, MAX_LINE_LENGTH, inputFile) == NULL) {
             free(new_record);
-            break;
+            return -2;
         }
         removeNewline(buffer);
         strncpy(new_record->city_and_state, buffer, MAX_ADDRESS_LENGTH);
@@ -62,7 +62,7 @@ int main(int argc, char* argv[]) {
         /* Zipcode */
         if (fgets(buffer, MAX_LINE_LENGTH, inputFile) == NULL) {
             free(new_record);
-            break;
+            return -2;
         }
         removeNewline(buffer);
         strncpy(new_record->zipcode, buffer, MAX_ADDRESS_LENGTH);
