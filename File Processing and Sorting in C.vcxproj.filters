@@ -20,11 +20,11 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="address.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="Record.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="x64\Debug\address.txt" />
   </ItemGroup>
 </Project>

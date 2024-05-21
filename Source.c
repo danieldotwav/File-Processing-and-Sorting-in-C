@@ -8,7 +8,14 @@ void removeNewline(char* str); /* Helper function to remove newline character fr
 void merge(struct Record** records, int left, int mid, int right);
 void mergeSort(struct Record** records, int left, int right);
 
-int main(void) {
+int main(int argc, char* argv[]) {
+    /* Attempt to open file*/
+    FILE* file = fopen(argv[1], "r");
+    if (!file) {
+        perror("Error: Unable to open file. Terminating Program...\n");
+        return -1;
+    }
+
     struct Record* records[MAX_RECORDS];
     int num_records = 0;
     char buffer[100]; /* Buffer for reading lines */

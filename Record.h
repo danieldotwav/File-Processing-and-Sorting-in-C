@@ -8,10 +8,10 @@
 
 /* Record information */
 struct Record {
-    char* name;
-    char* street;
-    char* city_and_state;
-    char* zipcode;
+    char name[MAX_NAME_LENGTH];
+    char street[MAX_ADDRESS_LENGTH];
+    char city_and_state[MAX_ADDRESS_LENGTH];
+    char zipcode[MAX_ADDRESS_LENGTH];
 };
 
 #endif
