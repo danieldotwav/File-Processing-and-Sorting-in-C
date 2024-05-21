@@ -9,11 +9,19 @@ void merge(struct Record** records, int left, int mid, int right);
 void mergeSort(struct Record** records, int left, int right);
 
 int main(int argc, char* argv[]) {
-    /* Attempt to open file*/
-    FILE* file = fopen(argv[1], "r");
-    if (!file) {
+    /* Attempt to open input file*/
+    FILE* inputFile = fopen(argv[1], "r");
+    if (!inputFile) {
         perror("Error: Unable to open file. Terminating Program...\n");
         return -1;
+    }
+
+    /* Open output file */
+    FILE* outputFile = fopen(argv[2], "w");
+    if (!outputFile) {
+        perror("Error opening output file");
+        fclose(inputFile);
+        return 1;
     }
 
     struct Record* records[MAX_RECORDS];
@@ -21,7 +29,7 @@ int main(int argc, char* argv[]) {
     char buffer[MAX_LINE_LENGTH]; /* Buffer for reading lines */
 
     /* Convert input to Record objects and store them in the records array */
-    while (fgets(buffer, MAX_LINE_LENGTH, file) != NULL && num_records < MAX_RECORDS) {
+    while (fgets(buffer, MAX_LINE_LENGTH, inputFile) != NULL && num_records < MAX_RECORDS) {
         /* Dynamically allocate memory for a record */
         struct Record* new_record = malloc(sizeof(struct Record));
 
@@ -36,7 +44,7 @@ int main(int argc, char* argv[]) {
         strncpy(new_record->name, buffer, MAX_NAME_LENGTH);
 
         /* Address */
-        if (fgets(buffer, MAX_LINE_LENGTH, file) == NULL) {
+        if (fgets(buffer, MAX_LINE_LENGTH, inputFile) == NULL) {
             free(new_record);
             break;
         }
@@ -44,7 +52,7 @@ int main(int argc, char* argv[]) {
         strncpy(new_record->street, buffer, MAX_ADDRESS_LENGTH);
 
         /* City and State */
-        if (fgets(buffer, MAX_LINE_LENGTH, file) == NULL) {
+        if (fgets(buffer, MAX_LINE_LENGTH, inputFile) == NULL) {
             free(new_record);
             break;
         }
@@ -52,7 +60,7 @@ int main(int argc, char* argv[]) {
         strncpy(new_record->city_and_state, buffer, MAX_ADDRESS_LENGTH);
 
         /* Zipcode */
-        if (fgets(buffer, MAX_LINE_LENGTH, file) == NULL) {
+        if (fgets(buffer, MAX_LINE_LENGTH, inputFile) == NULL) {
             free(new_record);
             break;
         }
@@ -64,7 +72,7 @@ int main(int argc, char* argv[]) {
         num_records++;
     }
 
-    fclose(file);
+    fclose(inputFile);
 
     /* Sort the records by zipcode */
     mergeSort(records, 0, num_records - 1);
@@ -72,11 +80,13 @@ int main(int argc, char* argv[]) {
     /* Display sorted records */
     for (int i = 0; i < num_records; i++) {
         struct Record* rec = records[i];
-        printf("%s\n", rec->name);
-        printf("%s\n", rec->street);
-        printf("%s\n", rec->city_and_state);
-        printf("%s\n\n", rec->zipcode);
+        fprintf(outputFile, "%s\n", rec->name);
+        fprintf(outputFile, "%s\n", rec->street);
+        fprintf(outputFile, "%s\n", rec->city_and_state);
+        fprintf(outputFile, "%s\n\n", rec->zipcode);
     }
+
+    fclose(outputFile);
 
     /* Deallocate dynamically allocated memory */
     for (int i = 0; i < num_records; i++) {
